@@ -247,3 +247,10 @@ if st.button('Build figure'):
         final_image.save('final_image.tif')
         st.write('file saved with orignal size')
     st.write("run complete!")
+
+if st.download_button(
+    label="Download figure",
+    file_name='abc',
+    mime='small_image.tif',
+):
+  st.write('Download data')
