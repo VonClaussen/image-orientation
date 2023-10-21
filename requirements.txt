@@ -1,1 +1,5 @@
 streamlit==[1.27.2]
+pandas
+StringIO
+os
+Image
