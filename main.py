@@ -39,10 +39,17 @@ if flag_background_color==1:
 
 st.divider()
 
+# Determine the current directory of the script
+current_dir = os.path.dirname(__file__)
+
+# Create a folder to save the uploaded files
+images_dir = os.path.join(current_dir, "images")
+os.makedirs(images_dir, exist_ok=True)
+
 uploaded_files = st.file_uploader("Upload Files", type=["jpg", "png", "jpeg", "tif"], accept_multiple_files=True)
 
 if uploaded_files:
     for file in uploaded_files:
-        with open(os.path.join("images", file.name), "wb") as f:
+        with open(os.path.join(images_dir, file.name), "wb") as f:
             f.write(file.read())
         st.write(f"Saved file: {file.name}")
