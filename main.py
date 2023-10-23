@@ -4,37 +4,19 @@ from io import StringIO
 import os
 from PIL import Image, ImageDraw, ImageFont
 import functions as fx
+import ui as ui
 
 st.title('App to combine images and plots into one figure')
 st.subheader('Developed by Daniel Rockel 2023')
 
-background_color = None
-
-background_color_radio = st.radio(
-    "Background of labels",
-    ["transparent", "black", "white"]
-)
+background_color = ui.select_background_color
 
 big_image_output=st.toggle('Export final image in full size (could end up in huge files)')
 #st.write(f'{big_image_output}')    
 
-if background_color_radio == 'transparent':
-    background_color = (0,0,0,0)
-    st.write(f'Selected Background is {background_color}')
-elif background_color_radio == 'black':
-    background_color = (0,0,0,255)
-    st.write(f'Selected Background is {background_color}')
-elif background_color_radio == 'white':
-    background_color = (255,255,255,255)
-    st.write(f'Selected Background is {background_color}')
-else:
-    flag_background_color=1
-
 
 st.divider()
 
-if flag_background_color==1:
-    st.write('Fill in background color')
 
 st.divider()
 
