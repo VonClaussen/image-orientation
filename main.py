@@ -59,7 +59,7 @@ font_color_radio = st.radio(
     list(font_color_options.keys())
 )
 
-font_color = background_color_options.get(font_color_radio, (0, 0, 0, 255))
+font_color = font_color_options.get(font_color_radio, (0, 0, 0, 255))
 
 flag_block_rows=0
 flag_block_columns=1
@@ -123,8 +123,8 @@ label_size = (int(round(label_size_x)), int(round(label_size_y)))
 #To scale down final picture (give width in pixels, 7inches at 300dpi is 2100)
 
 
-label_info = (letter_shift_x, letter_shift_y, background_color,
-                x_percent, y_percent, font_size, font, font_color, label_size)
+label_info = (letter_shift_x, letter_shift_y, background_color, label_color,
+                x_percent, y_percent, font, font_color, label_size)
 
 len_label_info = len(label_info)
 
