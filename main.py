@@ -4,19 +4,51 @@ from io import StringIO
 import os
 from PIL import Image, ImageDraw, ImageFont
 import functions as fx
-import ui
+
 
 st.title('App to combine images and plots into one figure')
 st.subheader('Developed by Daniel Rockel 2023')
 
-background_color = ui.select_background_color
+import ui
+
+background_color_options = {
+    "transparent": (0, 0, 0, 0),
+    "black": (0, 0, 0, 255),
+    "white": (255, 255, 255, 255)
+}
+
+background_color_radio = st.radio(
+    "Color of the figure background",
+    list(background_color_options.keys())
+)
+
+background_color = background_color_options.get(background_color_radio, (0, 0, 0, 0))
+
+label_color_options = {
+    "transparent": (0, 0, 0, 0),
+    "black": (0, 0, 0, 255),
+    "white": (255, 255, 255, 255)
+}
+
+label_color_radio = st.radio(
+    "Color of the label",
+    list(label_color_options.keys())
+)
+label_color = label_color_options.get(label_color_radio, (0, 0, 0, 0))  
+
 
 big_image_output=st.toggle('Export final image in full size (could end up in huge files)')
-#st.write(f'{big_image_output}')    
+
 
 
 st.divider()
 
+st.write(f'Background color: {background_color_radio}{background_color}')
+st.write(f'Label color: {label_color_radio}{label_color}')
+if background_color!=(0,0,0,0):
+    st.write('Background is not transparent')
+if big_image_output==1:
+  st.write('CAREFUL you are exporting the image in full size which could end up in very big files')
 
 st.divider()
 
@@ -43,10 +75,7 @@ folder_path = './images/'
 #Labeling
 label_position_ver = 0
 label_position_hor = 0
-background_on=0
-background_color = (
-    255, 255, 255, 0
-)
+
 
  #(width, length) in this case in realtion to the font_size
 #(0,0,0,255)=black, (255,255,255,255)=white, for everything else check RGBA coloring
@@ -64,7 +93,7 @@ reduced_width=1050
 #if 1, the program saves the big file without any loss in compression. Might take very long.
 non_reduced_image=0
 
-label_info = (label_position_ver, label_position_hor, background_on, background_color,
+label_info = (label_position_ver, label_position_hor, background_color,
                 x_percent, y_percent, font_size, font, font_color, square_size)
 len_label_info = len(label_info)
 
@@ -117,9 +146,8 @@ if st.button('Build figure'):
         final_image.save('final_image.tif')
         st.write('file saved with orignal size')
     st.write("run complete!")
-
-with open("small_image.tif", "rb") as file:
-    btn = st.download_button(
+    with open("small_image.tif", "rb") as file:
+      btn = st.download_button(
             label="Download image",
             data=file,
             file_name="small_image.tif",

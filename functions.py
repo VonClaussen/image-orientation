@@ -38,12 +38,12 @@ def load_images_from_folder(folder_path):
 
 def label_images(image_list, label_info):
   labeled_images = []
-  (label_position_ver, label_position_hor, background_on, background_color, x_percent,
+  (label_position_ver, label_position_hor, background_color, x_percent,
    y_percent, font_size, font, font_color, square_size) = label_info
   for idx, image in enumerate(image_list):
     x_pos = image.width / 100 * x_percent
     y_pos = image.height / 100 * y_percent
-    if background_on==1:
+    if background_color!=(0,0,0,0):
       square_start = (x_percent, y_percent)
       square = Image.new("RGBA", square_size, background_color)
       image.paste(square, square_start)
