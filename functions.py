@@ -1,3 +1,10 @@
+import streamlit as st
+import pandas as pd
+from io import StringIO
+import os
+from PIL import Image, ImageDraw, ImageFont
+import functions as fx
+
 def get_dimensions(row_list, column_list):
   max_heights = {}
   max_widths = {}
@@ -31,9 +38,8 @@ def load_images_from_folder(folder_path):
 
 def label_images(image_list, label_info):
   labeled_images = []
-  #variables
   (label_position_ver, label_position_hor, background_on, background_color, x_percent,
-   y_percent, font_size, font, font_color) = label_info
+   y_percent, font_size, font, font_color, square_size) = label_info
   for idx, image in enumerate(image_list):
     x_pos = image.width / 100 * x_percent
     y_pos = image.height / 100 * y_percent
@@ -95,7 +101,7 @@ def calc_row_column(filename_list, number_of_rows, number_of_columns):
   return number_of_rows, number_of_columns
 
 
-def arange_images(row_list, max_heights, total_height, total_width, image_background):
+def arange_images(row_list, max_heights, max_widths, total_height, total_width, image_background):
   complete_image = Image.new('RGBA', (total_width, total_height), image_background)
   current_y = 0
   for row_index, row in enumerate(row_list):

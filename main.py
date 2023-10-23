@@ -82,6 +82,10 @@ reduced_width=1050
 #if 1, the program saves the big file without any loss in compression. Might take very long.
 non_reduced_image=0
 
+label_info = (label_position_ver, label_position_hor, background_on, background_color,
+                x_percent, y_percent, font_size, font, font_color, square_size)
+len_label_info = len(label_info)
+
 ############################################
 #### No more editing beyond this point #####
 ############################################
@@ -109,9 +113,7 @@ if st.button('Build figure'):
                                                         number_of_rows,
                                                         number_of_columns)
 
-    label_info = (label_position_ver, label_position_hor, background_on, background_color,
-                x_percent, y_percent, font_size, font, font_color)
-    len_label_info = len(label_info)
+
     st.write(
         f'label_info contains the following information {label_info} which is a length of {len_label_info}'
     )
@@ -122,7 +124,7 @@ if st.button('Build figure'):
     #st.write(f'COLOUMNS ARE: {column_list}')
     max_heights, max_widths, total_height, total_width = fx.get_dimensions(
         row_list, column_list)
-    final_image = fx.arange_images(row_list, max_heights, total_height, total_width, image_background)
+    final_image = fx.arange_images(row_list, max_heights, max_widths, total_height, total_width, image_background)
     st.write('final image arranged...')
     st.write('creating reduced image...')
     small_image=fx.resize(final_image, reduced_width)
