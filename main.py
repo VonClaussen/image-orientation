@@ -9,8 +9,6 @@ import functions as fx
 st.title('App to combine images and plots into one figure')
 st.subheader('Developed by Daniel Rockel 2023')
 
-import ui
-
 background_color_options = {
     "transparent": (0, 0, 0, 0),
     "black": (0, 0, 0, 255),
@@ -36,8 +34,62 @@ label_color_radio = st.radio(
 )
 label_color = label_color_options.get(label_color_radio, (0, 0, 0, 0))  
 
+font_size = int(round(st.number_input('Insert the font size (1-200)', step=1, value=60, min_value=1, max_value=200)))
 
-big_image_output=st.toggle('Export final image in full size (could end up in huge files)')
+label_scaling=st.radio('Choose if the label size is determined absolute by a number of pixels or relative to the font size', ["Relative to the font size (recomended)","Absolute by pixels"])
+if label_scaling.startswith('Absolute'):
+    label_size_x=int(round(st.number_input('Size in X direction', step=1, value=120, min_value=1, max_value=1000)))
+    label_size_y=int(round(st.number_input('Size in Y direction', step=1, value=120, min_value=1, max_value=1000)))
+elif label_scaling.startswith('Relative'):
+    label_relative_x=st.number_input('Scaling in X direction (1 equals the font size)', step=0.01, value=1.5, min_value=0.01, max_value=10.0)
+    label_relative_y=st.number_input('Scaling in Y direction (1 equals the font size, 1.5 recomended)', step=0.01, value=1.5, min_value=0.01, max_value=10.0)
+    label_size_x=font_size*label_relative_x
+    label_size_y=font_size*label_relative_y
+
+x_percent = int(round(st.number_input('Insert the shift of the label in X-direction in percent (0-100)', step=1, value=0, min_value=0, max_value=100)))
+y_percent = int(round(st.number_input('Insert the shift of the label in Y-direction in percent (0-100)', step=1, value=0, min_value=0, max_value=100)))
+
+font_color_options = {
+    "black": (0, 0, 0, 255),
+    "white": (255, 255, 255, 255)
+}
+
+font_color_radio = st.radio(
+    "Color of the font in the label",
+    list(font_color_options.keys())
+)
+
+font_color = background_color_options.get(font_color_radio, (0, 0, 0, 255))
+
+flag_block_rows=0
+flag_block_columns=1
+
+row_column_switch=st.radio('Decide if the layout is calculated from rows or columns', ['row','column'])
+
+if row_column_switch=='row':
+    flag_block_rows=0
+    flag_block_columns=1
+    number_of_rows = int(round(st.number_input('Number of Rows', step=1, value=1, min_value=0, max_value=100, disabled=flag_block_rows)))
+    number_of_columns = 0
+elif row_column_switch=='column':
+    flag_block_rows=1
+    flag_block_columns=0
+    number_of_columns = int(round(st.number_input('Number of Columns', step=1, value=0, min_value=0, max_value=100, disabled=flag_block_columns)))
+    number_of_rows=0
+
+radio_letter_shift=st.toggle('Shift letters in the label without shifting the label background')
+if radio_letter_shift==True:
+    letter_shift_x = int(round(st.number_input('Shift letter in x direction', step=1, value=0, min_value=0, max_value=100)))
+    letter_shift_y = int(round(st.number_input('shift letter in y direction', step=1, value=0, min_value=0, max_value=100)))
+else:
+    letter_shift_x=0
+    letter_shift_y=0
+
+input_reduced_width=st.number_input('Determine the width of your figure output in inches (3.5 or 7 recomended for publications, 300dpi is chosen)', step=0.1, value=3.5, min_value=0.1, max_value=14.0)
+reduced_width=int(round(300*input_reduced_width))
+
+
+non_reduced_output=st.toggle('Export final image in full size (could end up in huge files)')
 
 
 
@@ -47,7 +99,38 @@ st.write(f'Background color: {background_color_radio}{background_color}')
 st.write(f'Label color: {label_color_radio}{label_color}')
 if background_color!=(0,0,0,0):
     st.write('Background is not transparent')
-if big_image_output==1:
+st.write(f'Font size is ', font_size)
+st.write('X-Shift of label is:', x_percent)
+st.write('Y-Shift of label is:', y_percent)
+if radio_letter_shift==False:
+    st.write('Letter in the label is not shifted')
+else:
+    st.write(f'Letter in the label is shifted by {letter_shift_x} in X direction and {letter_shift_y} in Y direction')
+if row_column_switch=='row':
+    st.write('Number of rows set to', number_of_rows)
+    st.write('Number of columns will be calculated')
+elif row_column_switch=='column':
+    st.write('Number of columns set to', number_of_columns)
+    st.write('Number of columns will be calculated')
+st.write('figure is scaled to width of', reduced_width,'pixels')
+
+
+
+font = ImageFont.truetype("./fonts/arial.ttf", font_size)
+
+label_size = (int(round(label_size_x)), int(round(label_size_y)))
+
+#To scale down final picture (give width in pixels, 7inches at 300dpi is 2100)
+
+
+label_info = (letter_shift_x, letter_shift_y, background_color,
+                x_percent, y_percent, font_size, font, font_color, label_size)
+
+len_label_info = len(label_info)
+
+
+
+if non_reduced_output==1:
   st.write('CAREFUL you are exporting the image in full size which could end up in very big files')
 
 st.divider()
@@ -66,42 +149,15 @@ if uploaded_files:
             f.write(file.read())
         st.write(f"Saved file: {file.name}")
 
-#Either number_of_rows or number_of_columns must be 0
-number_of_rows = 0
-number_of_columns = 1
 #folder path
 folder_path = './images/'
 
-#Labeling
-label_position_ver = 0
-label_position_hor = 0
-
-
- #(width, length) in this case in realtion to the font_size
-#(0,0,0,255)=black, (255,255,255,255)=white, for everything else check RGBA coloring
-x_percent = 0
-y_percent = 0
-font_size = 60
-font = ImageFont.truetype("./fonts/arial.ttf", font_size)
-font_color = (0, 0, 0, 255)
-square_size = (int(round(font_size * 1.5, 0)), (int(round(font_size * 1.5, 0))))
-
-image_background=(255,255,255,255)
-#To scale down final picture (give width in pixels, 7inches at 300dpi is 2100)
-reduced_width=1050
-
-#if 1, the program saves the big file without any loss in compression. Might take very long.
-non_reduced_image=0
-
-label_info = (label_position_ver, label_position_hor, background_color,
-                x_percent, y_percent, font_size, font, font_color, square_size)
-len_label_info = len(label_info)
 
 ############################################
 #### No more editing beyond this point #####
 ############################################
 
-### Functions
+
 
 
 
@@ -135,13 +191,13 @@ if st.button('Build figure'):
     #st.write(f'COLOUMNS ARE: {column_list}')
     max_heights, max_widths, total_height, total_width = fx.get_dimensions(
         row_list, column_list)
-    final_image = fx.arange_images(row_list, max_heights, max_widths, total_height, total_width, image_background)
+    final_image = fx.arange_images(row_list, max_heights, max_widths, total_height, total_width, background_color)
     st.write('final image arranged...')
     st.write('creating reduced image...')
     small_image=fx.resize(final_image, reduced_width)
     small_image.save('small_image.tif')
     st.write('saved reduced image...')
-    if non_reduced_image==1:
+    if non_reduced_output==1:
         st.write('saving original image')
         final_image.save('final_image.tif')
         st.write('file saved with orignal size')
