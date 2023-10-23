@@ -45,7 +45,7 @@ def label_images(image_list, label_info):
     y_pos = image.height / 100 * y_percent
     letter_pos_x=image.width/100*letter_position_x
     letter_pos_y=image.width/100*letter_position_y
-    if background_color!=(0,0,0,0):
+    if label_color!=(0,0,0,0):
       st.write('label background is', background_color)
       square_start = (x_percent, y_percent)
       square = Image.new("RGBA", label_size, background_color)
