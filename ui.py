@@ -1,10 +1,4 @@
 import streamlit as st
-import pandas as pd
-from io import StringIO
-import os
-from PIL import Image, ImageDraw, ImageFont
-import functions as fx
-import ui as ui
 
 def select_background_color():
     background_color_radio = st.radio(

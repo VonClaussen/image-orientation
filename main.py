@@ -4,7 +4,7 @@ from io import StringIO
 import os
 from PIL import Image, ImageDraw, ImageFont
 import functions as fx
-import ui as ui
+import ui
 
 st.title('App to combine images and plots into one figure')
 st.subheader('Developed by Daniel Rockel 2023')
