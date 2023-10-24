@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
-from io import StringIO
+#from io import StringIO
 import os
 from PIL import Image, ImageDraw, ImageFont
 import functions as fx
+import io
 
 
 st.title('App to combine images and plots into one figure')
@@ -61,20 +62,14 @@ font_color_radio = st.radio(
 
 font_color = font_color_options.get(font_color_radio, (0, 0, 0, 255))
 
-flag_block_rows=0
-flag_block_columns=1
 
 row_column_switch=st.radio('Decide if the layout is calculated from rows or columns', ['row','column'])
 
 if row_column_switch=='row':
-    flag_block_rows=0
-    flag_block_columns=1
-    number_of_rows = int(round(st.number_input('Number of Rows', step=1, value=1, min_value=0, max_value=100, disabled=flag_block_rows)))
+    number_of_rows = int(round(st.number_input('Number of Rows', step=1, value=1, min_value=0, max_value=100)))
     number_of_columns = 0
 elif row_column_switch=='column':
-    flag_block_rows=1
-    flag_block_columns=0
-    number_of_columns = int(round(st.number_input('Number of Columns', step=1, value=0, min_value=0, max_value=100, disabled=flag_block_columns)))
+    number_of_columns = int(round(st.number_input('Number of Columns', step=1, value=0, min_value=0, max_value=100)))
     number_of_rows=0
 
 radio_letter_shift=st.toggle('Shift letters in the label without shifting the label background')
@@ -136,41 +131,45 @@ if non_reduced_output==1:
 st.divider()
 
 
-current_dir = os.path.dirname(__file__)
 
-images_dir = os.path.join(current_dir, "images")
-os.makedirs(images_dir, exist_ok=True)
 
 uploaded_files = st.file_uploader("Upload Files", type=["jpg", "png", "jpeg", "tif"], accept_multiple_files=True)
 
-if uploaded_files:
-    for file in uploaded_files:
-        with open(os.path.join(images_dir, file.name), "wb") as f:
-            f.write(file.read())
-        st.write(f"Saved file: {file.name}")
+#current_dir = os.path.dirname(__file__)
+
+#images_dir = os.path.join(current_dir, "images")
+#os.makedirs(images_dir, exist_ok=True)
+#if uploaded_files:
+#    for file in uploaded_files:
+#        with open(os.path.join(images_dir, file.name), "wb") as f:
+#            f.write(file.read())
+#        st.write(f"Saved file: {file.name}")
 
 #folder path
 folder_path = './images/'
-
-
-############################################
-#### No more editing beyond this point #####
-############################################
-
-
-
-
-
 
 ############################################
 ########### Main programm start ############
 ############################################
 
 #Getting list of image names
+image_list = []  # Initialize an empty list to store the uploaded images
+filename_list=[]
+
+if uploaded_files:
+    for file in uploaded_files:
+        # Read the image file and append it to the list
+        image_data = file.read()
+        image = Image.open(io.BytesIO(image_data))
+        image_list.append(image)
+        filename_list.append(file.name)
+        st.write(f"Opened file: {file.name}")
+
 
 if st.button('Build figure'):
     st.write("Loading images...")
-    image_list, filename_list = fx.load_images_from_folder(folder_path)
+    uploaded_files = st.file_uploader("Upload Images", type=["jpg", "png", "jpeg", "tif"], accept_multiple_files=True)
+    #filename_list, image_list = #fx.load_images_from_folder(folder_path)
 
     st.write('Calculating rows and columns...')
     length = len(filename_list)
@@ -194,6 +193,7 @@ if st.button('Build figure'):
     final_image = fx.arange_images(row_list, max_heights, max_widths, total_height, total_width, background_color)
     st.write('final image arranged...')
     st.write('creating reduced image...')
+    
     small_image=fx.resize(final_image, reduced_width)
     small_image.save('small_image.tif')
     st.write('saved reduced image...')
@@ -209,3 +209,5 @@ if st.button('Build figure'):
             file_name="small_image.tif",
             mime="image/tif"
           )
+      
+    
